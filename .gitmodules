@@ -1,0 +1,3 @@
+[submodule "themes/hugo-coder-lt"]
+	path = themes/hugo-coder-lt
+	url = https://github.com/PandaSekh/hugo-coder-lt.git
