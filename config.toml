@@ -1,3 +1,51 @@
-baseURL = 'http://example.org/'
-languageCode = 'en-us'
-title = 'My New Hugo Site'
+baseurl = "http://www.alessiofranceschi.dev"
+title = "Alessio Franceschi"
+theme = "hugo-coder"
+languagecode = "en"
+defaultcontentlanguage = "en"
+
+paginate = 20
+
+pygmentsstyle = "bw"
+pygmentscodefences = true
+pygmentscodefencesguesssyntax = true
+
+[params]
+  author = "Alessio Franceschi"
+  info = "Software Engineer"
+  description = "Alessio Franceschi's personal website"
+  keywords = "blog,developer,personal"
+
+  favicon_32 = "/images/favicon.png"
+  favicon_16 = "/images/favicon.png"
+
+  colorScheme = "light"
+  hidecolorschemetoggle = true
+
+[taxonomies]
+  category = "categories"
+  series = "series"
+  tag = "tags"
+  author = "authors"
+
+# Social links
+[[params.social]]
+  name = "LinkedIn"
+  image = "/images/social/linkedin.svg"
+  weight = 1
+  url = "https://www.linkedin.com/in/alessio-franceschi/"
+[[params.social]]
+  name = "Github"
+  image = "/images/social/github.svg"
+  weight = 0
+  url = "https://github.com/PandaSekh/"
+
+# Menu links
+[[menu.main]]
+  name = "Blog"
+  weight = 1
+  url  = "posts/"
+[[menu.main]]
+  name = "About"
+  weight = 2
+  url = "about/"
