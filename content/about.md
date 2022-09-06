@@ -1,7 +1,7 @@
 ---
 title: "About"
 date: 2022-08-24T22:31:07+02:00
-draft: true
+draft: false
 ---
 I spend most of my time programming or reading. Other than that, I&apos;m passionate about:
 - Gardening
