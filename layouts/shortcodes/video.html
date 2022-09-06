@@ -1,0 +1,7 @@
+<div class="video-box">
+	<video class="video-shortcode" preload="{{ .Get "preload" }}" {{if .Get "controls" }} controls {{ end }}  {{ if .Get "autoplay" }} autoplay {{ end }} loop="{{ .Get "loop" }}">
+		<source src="{{ .Get "src" }}" type="{{ .Get "type" }}">
+		There should have been a video here but your browser does not seem
+		to support it.
+	</video>
+</div>
