@@ -8,15 +8,13 @@ Hello,
 in this short (and first!) post on this blog I would like to show you how to make a sprite face the mouse cursor. This is quite useful for aiming in top-down shooters and similar games.
 You can see an example of this in this gif.
 
-{{< video src="/alessiofranceschiDOTdev/video/rotation.mp4" type="video/mp4" preload="auto" autoplay=true controls=false loop=true >}}
-
-{{< toc >}}
+{{< gif src="/video/rotation" preload="auto" autoplay=true controls=false loop=true >}}
 
 Now let's talk about the code. I tried various solutions found on the web, but most of them don't work, work sometimes or work badly. Luckily the easiest solution is also the best one! I found it on [YouTube](https://www.youtube.com/watch?v=_XdqA3xbP2A) and it is made by Danndx.
 
 ### The code
 Here's the full code:
-``` cs
+```cs
 Vector3 mousePosition = new Vector3 (Camera.main.ScreenToWorldPoint(Input.mousePosition));
 
 Vector2 directionToLookAt = new Vector2(
