@@ -567,9 +567,20 @@ figure {
     width: 1.6rem;
     margin-left: 0;
     margin-right: 0.5rem; }
-  .content .post .post-meta .date .posted-on {
-    margin-left: 0;
-    margin-right: 1.5rem; }
+  .content .post .post-meta .date {
+    display: flex; }
+    .content .post .post-meta .date .reading-time {
+      display: flex;
+      align-items: center; }
+      .content .post .post-meta .date .reading-time .icon {
+        margin-right: 3px; }
+    .content .post .post-meta .date .posted-on {
+      margin-left: 0;
+      margin-right: 1.5rem;
+      display: flex;
+      align-items: center; }
+      .content .post .post-meta .date .posted-on .icon {
+        margin-right: 3px; }
   .content .post .post-meta .tags .tag {
     display: inline-block;
     padding: 0.3rem 0.6rem;

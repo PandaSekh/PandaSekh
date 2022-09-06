@@ -1,4 +1,4 @@
-baseurl = "https://pandasekh.github.io/alessiofranceschiDOTdev"
+baseurl = "https://alessiofranceschi.dev"
 title = "Alessio Franceschi"
 theme = "hugo-coder-lt"
 languagecode = "en-us"
@@ -52,8 +52,10 @@ pygmentscodefencesguesssyntax = true
 [[menu.main]]
   name = "Blog"
   weight = 1
-  url  = "posts/"
+  url  = "blog/"
 [[menu.main]]
   name = "About"
   weight = 2
   url = "about/"
+[permalinks]
+  posts = '/blog/:slugorfilename'
