@@ -11,17 +11,7 @@ You can see an example of this in this gif.
 
 {{< toc >}}
 
-<div
-    style={{
-        display: "flex",
-        justifyContent: "center",
-      }}
->
-    <video preload="true" autoPlay loop muted playsInline>
-        <source src="/image/rotation.webm" type="video/webm" />
-        <source src="/image/rotation.mp4" type="video/mp4" />
-    </video>
-</div>
+{{ < gif src="/video/rotation.webm" type="video/webm" preload="auto" >}}
 
 Now let's talk about the code. I tried various solutions found on the web, but most of them don't work, work sometimes or work badly. Luckily the easiest solution is also the best one! I found it on [YouTube](https://www.youtube.com/watch?v=_XdqA3xbP2A) and it is made by Danndx.
 
