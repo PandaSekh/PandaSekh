@@ -6,7 +6,7 @@ description: "A series on how to build a fully features Commenting System in Nex
 series: [Real-Time Commenting System in React]
 ---
 
-In the <Link passHref href="/blog/react-commenting-system"><a>previous part of this series</a></Link> we created the foundations of this project and now we have a basic commenting system where we can create and display comments in real time. This time we're going to add some extra functionalities, like nested comments and markdown support.
+In the [previous part of this series]({{< ref "/blog/react-commenting-system" >}} "previous part of this series") we created the foundations of this project and now we have a basic commenting system where we can create and display comments in real time. This time we're going to add some extra functionalities, like nested comments and markdown support.
 
 {{< toc >}}
 
@@ -504,6 +504,6 @@ function verifyRecaptchaToken(token) {
 That's all for this post. In the next one we'll finally add some reactions to our comments!
 
 Full Series:
-- 1/3 <Link passHref href="/blog/react-commenting-system"><a>Building a Real-Time Commenting System in React</a></Link>
-- 2/3 <Link passHref href="/blog/react-commenting-system-part-2"><a>Making Nested Comments</a></Link>
-- 3/3 <Link passHref href="/blog/react-commenting-system-part-3"><a>Emoji Reactions for Comments</a></Link>
+- 1/3 [Building a Real-Time Commenting System in React]({{< ref "/blog/react-commenting-system" >}} "Building a Real-Time Commenting System in React")
+- 2/3 [Making Nested Comments]({{< ref "/blog/react-commenting-system-part-2" >}} "Making Nested Comments")
+- 3/3 [Emoji Reactions for Comments]({{< ref "/blog/react-commenting-system-part-3" >}} "Emoji Reactions for Comments")

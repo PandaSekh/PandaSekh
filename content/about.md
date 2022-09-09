@@ -1,6 +1,6 @@
 ---
 title: "About"
-date: 2022-08-24T22:31:07+02:00
+date: 2022-08-24
 draft: false
 ---
 I spend most of my time programming or reading. Other than that, I&apos;m passionate about:
@@ -9,4 +9,6 @@ I spend most of my time programming or reading. Other than that, I&apos;m passio
 - Self-hosting (I have a server that I use for various stuff)
 - Drawing (still learning)
 
-On this blog I mostly write about programming stuff. On [Arte della Lettura](https://www.artedellalettura.it) I write about the books I read (in italian).
+On this blog I mostly write about programming stuff. On [Arte della Lettura](https://www.artedellalettura.it) I write in italian about the books I read.
+
+If you have feedback, suggestions or corrections, please feel free to contact me (email can be found in my [GitHub profile](https://github.com/PandaSekh)). 

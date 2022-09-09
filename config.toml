@@ -1,6 +1,6 @@
 baseurl = "https://alessiofranceschi.dev"
 title = "Alessio Franceschi"
-theme = "hugo-coder-lt"
+theme = ["hugo-cloak-email", "hugo-coder-lt"]
 languagecode = "en-us"
 defaultcontentlanguage = "en"
 copyright = 'Copyright Alessio Franceschi'
@@ -19,8 +19,8 @@ pygmentscodefencesguesssyntax = true
   description = "Alessio Franceschi's personal website"
   keywords = "blog,developer,personal"
 
-  favicon_32 = "/images/favicon.png"
-  favicon_16 = "/images/favicon.png"
+  favicon_32 = "/image/favicon.png"
+  favicon_16 = "/image/favicon.png"
 
   colorScheme = "light"
   hidecolorschemetoggle = true
@@ -34,17 +34,17 @@ pygmentscodefencesguesssyntax = true
 # Social links
 [[params.social]]
   name = "LinkedIn"
-  image = "/images/social/linkedin.svg"
+  image = "/image/social/linkedin.svg"
   weight = 3
   url = "https://www.linkedin.com/in/alessio-franceschi/"
 [[params.social]]
   name = "Github"
-  image = "/images/social/github.svg"
+  image = "/image/social/github.svg"
   weight = 0
   url = "https://github.com/PandaSekh/"
 [[params.social]]
   name = "RSS"
-  image = "/images/social/rss.svg"
+  image = "/image/social/rss.svg"
   weight = 10
   url = "http://localhost:1313/index.rss"
 
@@ -59,3 +59,13 @@ pygmentscodefencesguesssyntax = true
   url = "about/"
 [permalinks]
   posts = '/blog/:slugorfilename'
+[imaging]
+  bgColor = '#ffffff'
+  hint = 'photo'
+  quality = 70
+  resampleFilter = 'CatmullRom'
+  [imaging.exif]
+    disableDate = true
+    disableLatLong = true
+    excludeFields = ''
+    includeFields = ''
