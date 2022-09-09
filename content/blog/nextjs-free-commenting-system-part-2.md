@@ -341,5 +341,5 @@ That's all! This is how I built my free static commenting system.
 If you have any doubts you can comment here or write me on my social media.
 
 Full Series:
-- 1/3 [NextJS Free Commenting System using Github Part 1]({{< ref "/blog/nextjs-free-commenting-system-part-1" >}} "NextJS Free Commenting System using Github Part 1")
-- 1/3 [NextJS Free Commenting System using Github Part 2]({{< ref "/blog/nextjs-free-commenting-system-part-2" >}} "NextJS Free Commenting System using Github Part 2")
+- 1/2 [NextJS Free Commenting System using Github Part 1]({{< ref "/blog/nextjs-free-commenting-system-part-1" >}} "NextJS Free Commenting System using Github Part 1")
+- 2/2 [NextJS Free Commenting System using Github Part 2]({{< ref "/blog/nextjs-free-commenting-system-part-2" >}} "NextJS Free Commenting System using Github Part 2")
