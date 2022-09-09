@@ -1,0 +1,493 @@
+<!doctype html><html lang=en><head><title>Emoji Reactions for Comments - Building a Real-Time Commenting System in React [Part 3/3] · Alessio Franceschi</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=color-scheme content="light"><meta name=author content="Alessio Franceschi"><meta name=description content="A series on how to build a fully features Commenting System in Next.js (React)"><meta name=keywords content="blog,developer,personal"><meta name=twitter:card content="summary"><meta name=twitter:title content="Emoji Reactions for Comments - Building a Real-Time Commenting System in React [Part 3/3]"><meta name=twitter:description content="A series on how to build a fully features Commenting System in Next.js (React)"><meta property="og:title" content="Emoji Reactions for Comments - Building a Real-Time Commenting System in React [Part 3/3]"><meta property="og:description" content="A series on how to build a fully features Commenting System in Next.js (React)"><meta property="og:type" content="article"><meta property="og:url" content="https://alessiofranceschi.dev/blog/react-commenting-system-part-3/"><meta property="article:section" content="blog"><meta property="article:published_time" content="2021-01-15T00:00:00+00:00"><meta property="article:modified_time" content="2021-01-15T00:00:00+00:00"><meta property="og:see_also" content="https://alessiofranceschi.dev/blog/react-commenting-system-part-2/"><meta property="og:see_also" content="https://alessiofranceschi.dev/blog/react-commenting-system/"><link rel=canonical href=https://alessiofranceschi.dev/blog/react-commenting-system-part-3/><link rel=stylesheet href=/css/coder.min.c4d7e93a158eda5a65b3df343745d2092a0a1e2170feeec909b8a89443903c6a.css integrity="sha256-xNfpOhWO2lpls980N0XSCSoKHiFw/u7JCbiolEOQPGo=" crossorigin=anonymous media=screen><link rel=icon type=image/png href=/image/favicon.png sizes=32x32><link rel=icon type=image/png href=/image/favicon.png sizes=16x16><link rel=apple-touch-icon href=/images/apple-touch-icon.png><link rel=apple-touch-icon sizes=180x180 href=/images/apple-touch-icon.png><link rel=mask-icon href=/images/safari-pinned-tab.svg color=#5bbad5><meta name=generator content="Hugo 0.102.3"></head><body class="preload-transitions colorscheme-light"><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=/>Alessio Franceschi</a>
+<input type=checkbox id=menu-toggle>
+<label class="menu-button float-right" for=menu-toggle><i class="fa fa-bars fa-fw" aria-hidden=true></i></label><ul class=navigation-list><li class=navigation-item><a class=navigation-link href=/blog/>Blog</a></li><li class=navigation-item><a class=navigation-link href=/about/>About</a></li></ul></section></nav><div class=content><section class="container page"><article><header><h1 class=title><a class=title-link href=https://alessiofranceschi.dev/blog/react-commenting-system-part-3/>Emoji Reactions for Comments - Building a Real-Time Commenting System in React [Part 3/3]</a></h1></header><p>In the <a href=https://alessiofranceschi.dev/blog/react-commenting-system/ title="first part">first part</a> of this series we built the basics of a commenting system while in the <a href=https://alessiofranceschi.dev/blog/react-commenting-system-part-2/ title="second one">second one</a> we finally added nested comments. In this third and final article we&rsquo;ll add Emoji Reactions. This is going to be useful because people can interact with your content without the need to write a comment. An alternative would be a Reddit-like voting system, but I think that emojis will add a bit of color to our comments, so I decided to go for them.</p><div><h2>Table Of Contents</h2><nav id=TableOfContents><ul><li><a href=#features>Features</a></li><li><a href=#data-schema>Data Schema</a></li><li><a href=#components>Components</a><ul><li><a href=#emoji-component>Emoji Component</a></li><li><a href=#emoji-with-counter>Emoji With Counter</a></li><li><a href=#emoji-adder>Emoji Adder</a></li></ul></li><li><a href=#emoji-context>Emoji Context</a></li><li><a href=#emoji-selection>Emoji Selection</a></li><li><a href=#full-reaction-block>Full Reaction Block</a></li><li><a href=#backend>Backend</a></li><li><a href=#styling>Styling</a></li><li><a href=#conclusion>Conclusion</a></li></ul></nav></div><div class=video-box><video class=video-shortcode preload=auto autoplay loop=true>
+<source src=/video/reactions-example.mp4 type=video/mp4><source src=/video/reactions-example.gif type=video/gif>There should have been a video here but your browser does not seem
+to support it.</video></div><h2 id=features>Features</h2><p>The emojis should update real-time and be lightweight, as we don&rsquo;t want to slow down everything just for a bunch of smiley faces. I tried various libraries, but they all were too heavy (we&rsquo;re talking megabytes) or slow. We need reactions for each comment and if the library isn&rsquo;t fast and efficient we can break the site quite easily. Because of that, I decided to create my own emoji picker, with some limitations of course:</p><ul><li>Limited selection of Emojis (which is a great thing tbh, I&rsquo;m going to explain why soon)</li><li>No skin color alternatives, everyone is a Simpson (again, great)</li></ul><p>These limitations are actually useful because each emoji is rendered with it&rsquo;s own counter and displayed near the comment, and with 3,304 emojis currently existing it would become impossibile to render them all. Also, we can just choose to use themed emojis depending on the context. You want to use this in you cooking blog? Just add some cooking-related emojis to make your blog more fun.</p><h2 id=data-schema>Data Schema</h2><p>We already created our data schema in the first article, so I&rsquo;m just going to explain it&rsquo;s structure quickly.
+<code>commentId</code> is the id or key (they&rsquo;re usually different parameters, but in our case they&rsquo;re the same) of the comment, no matter if it&rsquo;s a parent or a child.
+<code>reactions</code> is an array containing all the Reactions relative to that comment. A Reaction is composed of:</p><ul><li><code>emoji</code>, the emoji itself</li><li><code>counter</code> of every time that emoji was clicked/selected</li><li><code>label</code>, for accessibility reasons</li></ul><img src=/blog/react-commenting-system-part-3/emoji-block_hu1b0303ddd2efecc7244ad3977dd2f056_12504_301x131_resize_q70_h2_catmullrom.webp width=301 height=131 alt="Example emoji block"><h2 id=components>Components</h2><p>Let&rsquo;s start making some components, starting from the basic ones and adding something to them in each step. Create a new folder in the <code>components</code> one to keep things tidy. I called mine simply <code>Emoji</code>.</p><h3 id=emoji-component>Emoji Component</h3><p>A basic component which will render an emoji with the correct attributes for accessibility, <code>role="img"</code> and <code>aria-label</code>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#75715e>// components/Emoji/Emoji.js
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>export</span> <span style=color:#66d9ef>default</span> <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>Emoji</span>({ <span style=color:#a6e22e>emoji</span>, <span style=color:#a6e22e>label</span>, <span style=color:#a6e22e>className</span>, <span style=color:#a6e22e>onClickCallback</span> }) {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> (
+</span></span><span style=display:flex><span>		&lt;<span style=color:#f92672>span</span>
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>className</span><span style=color:#f92672>=</span>{
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>className</span> <span style=color:#f92672>?</span> <span style=color:#a6e22e>className</span> <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34; emoji&#34;</span> <span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;emoji&#34;</span>
+</span></span><span style=display:flex><span>			}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>role</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;img&#34;</span>
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>aria</span><span style=color:#960050;background-color:#1e0010>-</span><span style=color:#a6e22e>label</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>label</span> <span style=color:#f92672>?</span> <span style=color:#a6e22e>label</span> <span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;&#34;</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>aria</span><span style=color:#960050;background-color:#1e0010>-</span><span style=color:#a6e22e>hidden</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>label</span> <span style=color:#f92672>?</span> <span style=color:#e6db74>&#34;false&#34;</span> <span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;true&#34;</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>onClick</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>onClickCallback</span>}
+</span></span><span style=display:flex><span>		&gt;
+</span></span><span style=display:flex><span>			{<span style=color:#a6e22e>emoji</span>}
+</span></span><span style=display:flex><span>		&lt;/<span style=color:#f92672>span</span>&gt;
+</span></span><span style=display:flex><span>	);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>This component will simply render an emoji. The props <code>emoji</code> and <code>label</code> are those we&rsquo;ll get from Sanity, <code>className</code> is an optional extra class, <code>onClickCallback</code> is an optional callback for the <code>onClick</code> event. Later on we&rsquo;ll do some basic styling, so this time I&rsquo;m going to define classes too.</p><h3 id=emoji-with-counter>Emoji With Counter</h3><p>An Emoji with a Counter showing how many times it was selected.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#75715e>// components/Emoji/EmojiWithCounter.js
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>import</span> <span style=color:#a6e22e>Emoji</span> <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;./Emoji&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>export</span> <span style=color:#66d9ef>default</span> <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>EmojiWithCounter</span>({<span style=color:#a6e22e>emoji</span>, <span style=color:#a6e22e>emojiLabel</span>, <span style=color:#a6e22e>initialCounter</span>, <span style=color:#a6e22e>onIncrease</span>}) {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> (
+</span></span><span style=display:flex><span>		&lt;<span style=color:#f92672>span</span>
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>className</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;emoji-container&#34;</span>
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>id</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>emojiLabel</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>onClick</span><span style=color:#f92672>=</span>{() =&gt; <span style=color:#a6e22e>onIncrease</span>(<span style=color:#a6e22e>emoji</span>)}
+</span></span><span style=display:flex><span>		&gt;
+</span></span><span style=display:flex><span>			&lt;<span style=color:#f92672>Emoji</span> <span style=color:#a6e22e>emoji</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>emoji</span>} <span style=color:#a6e22e>label</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>emojiLabel</span>} /&gt;
+</span></span><span style=display:flex><span>			&lt;<span style=color:#f92672>div</span> <span style=color:#a6e22e>className</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;emoji-counter-div&#34;</span>&gt;
+</span></span><span style=display:flex><span>				&lt;<span style=color:#f92672>span</span> <span style=color:#a6e22e>className</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;emoji-counter&#34;</span>&gt;{<span style=color:#a6e22e>initialCounter</span>}&lt;/<span style=color:#f92672>span</span>&gt;
+</span></span><span style=display:flex><span>			&lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>		&lt;/<span style=color:#f92672>span</span>&gt;
+</span></span><span style=display:flex><span>	);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Pretty self-explanatory, this will render an Emoji with a counter on top of it. <code>onIncrease</code> is a callback for the <code>onClick</code> event.</p><p>Before continuing I feel the need to explain the difference between these two components, because there might be some confusion on why I had to pass and call two different callbacks both for the <code>onClick</code> event.
+The difference is quite simple. As you saw in the screenshot in the beginning of the article, there will be a box with &ldquo;unselected&rdquo; emojis, and a row of selected emojis with a counter on them (see <a href=https://react-commenting-system.vercel.app/>the demo</a> if this isn&rsquo;t clear). So, we&rsquo;ll use the <code>Emoji</code> component for the unselected emojis. Its callback will create a new object in the database and start its counter at 1. Also, it will remove the emoji from the unselected box and move it to the row of selected ones.
+The <code>EmojiWithCounter</code> is the component used to render the selected emojis.</p><img src=/blog/react-commenting-system-part-3/difference_hu92b520709a7c6a4e1c346bda3a886739_30935_953x372_resize_q70_h2_catmullrom_3.webp alt="The Different Emojis"><h3 id=emoji-adder>Emoji Adder</h3><p>This component will handle the opening and closing of the unselected emojis. We don&rsquo;t want to clutter the comments with emojis everywhere, so by default only the selected ones should be visible. Also, it renders the unselected emojis menu.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#75715e>// components/Emoji/EmojiAdder.js
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> <span style=color:#a6e22e>Emoji</span> <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;./Emoji&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>Fragment</span>, <span style=color:#a6e22e>useState</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;react&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>nanoid</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#39;nanoid&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>export</span> <span style=color:#66d9ef>default</span> <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>EmojiAdder</span>({<span style=color:#a6e22e>selectedEmojis</span>, <span style=color:#a6e22e>updateEmojiCount</span>, <span style=color:#a6e22e>EMOJI_OPTIONS</span>}) {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> [<span style=color:#a6e22e>isMenuOpen</span>, <span style=color:#a6e22e>setIsMenuOpen</span>] <span style=color:#f92672>=</span> <span style=color:#a6e22e>useState</span>(<span style=color:#66d9ef>false</span>);
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>toggleMenu</span> <span style=color:#f92672>=</span> () =&gt; <span style=color:#a6e22e>setIsMenuOpen</span>(<span style=color:#f92672>!</span><span style=color:#a6e22e>isMenuOpen</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// We have an array of already selected emojis
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>alreadySelectedEmojis</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>selectedEmojis</span>.<span style=color:#a6e22e>map</span>(<span style=color:#a6e22e>e</span> =&gt; <span style=color:#a6e22e>e</span>.<span style=color:#a6e22e>emoji</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// We create an array of Emoji components that are not already selected
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>emojiOptions</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>EMOJI_OPTIONS</span>.<span style=color:#a6e22e>filter</span>(
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>e</span> =&gt; <span style=color:#f92672>!</span><span style=color:#a6e22e>alreadySelectedEmojis</span>.<span style=color:#a6e22e>includes</span>(<span style=color:#a6e22e>e</span>.<span style=color:#a6e22e>emoji</span>)
+</span></span><span style=display:flex><span>	).<span style=color:#a6e22e>map</span>(<span style=color:#a6e22e>singleEmoji</span> =&gt; (
+</span></span><span style=display:flex><span>		&lt;<span style=color:#f92672>Emoji</span>
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>key</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>nanoid</span>()}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>emoji</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>singleEmoji</span>.<span style=color:#a6e22e>emoji</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>label</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>singleEmoji</span>.<span style=color:#a6e22e>label</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>onClickCallback</span><span style=color:#f92672>=</span>{() =&gt; {
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>updateEmojiCount</span>(<span style=color:#a6e22e>singleEmoji</span>.<span style=color:#a6e22e>emoji</span>); <span style=color:#75715e>// We pass a callback which will add the emoji to the selected ones on click
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>				<span style=color:#a6e22e>toggleMenu</span>();
+</span></span><span style=display:flex><span>			}}
+</span></span><span style=display:flex><span>		/&gt;
+</span></span><span style=display:flex><span>	));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> (
+</span></span><span style=display:flex><span>		&lt;<span style=color:#f92672>Fragment</span>&gt;
+</span></span><span style=display:flex><span>			{<span style=color:#a6e22e>emojiOptions</span>.<span style=color:#a6e22e>length</span> <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>&amp;&amp;</span> (
+</span></span><span style=display:flex><span>				&lt;<span style=color:#f92672>span</span> <span style=color:#a6e22e>className</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;reaction-adder-emoji&#34;</span>&gt;
+</span></span><span style=display:flex><span>					&lt;<span style=color:#f92672>Emoji</span>
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>onClickCallback</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>toggleMenu</span>}
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>emoji</span><span style=color:#f92672>=</span>{<span style=color:#e6db74>&#34;+&#34;</span>}
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>label</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;emoji-adder&#34;</span>
+</span></span><span style=display:flex><span>					/&gt;
+</span></span><span style=display:flex><span>					&lt;<span style=color:#f92672>EmojiMenu</span> /&gt;
+</span></span><span style=display:flex><span>				&lt;/<span style=color:#f92672>span</span>&gt;
+</span></span><span style=display:flex><span>			)}
+</span></span><span style=display:flex><span>		&lt;/<span style=color:#f92672>Fragment</span>&gt;
+</span></span><span style=display:flex><span>	);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>function</span> <span style=color:#a6e22e>EmojiMenu</span>() {
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>return</span> (
+</span></span><span style=display:flex><span>			&lt;<span style=color:#f92672>div</span>
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>className</span><span style=color:#f92672>=</span>{
+</span></span><span style=display:flex><span>					<span style=color:#a6e22e>isMenuOpen</span>
+</span></span><span style=display:flex><span>						<span style=color:#f92672>?</span> <span style=color:#e6db74>&#34;emoji-adder-menu-open&#34;</span>
+</span></span><span style=display:flex><span>						<span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;emoji-adder-menu-closed&#34;</span>
+</span></span><span style=display:flex><span>				}
+</span></span><span style=display:flex><span>			&gt;
+</span></span><span style=display:flex><span>				{<span style=color:#a6e22e>emojiOptions</span>}
+</span></span><span style=display:flex><span>			&lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>		);
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>We now have to stitch all of these components together, but before we do that we need something else.</p><h2 id=emoji-context>Emoji Context</h2><p><a href=https://reactjs.org/docs/hooks-reference.html#usecontext>useContext</a> is a React Hook that can provide something like a global state. Explaining it is out of the scope of this articles, if you want to know more the React Documentation is a good place to start.
+We&rsquo;re going to create a Context to hold every reaction added to every comment. I decided to do this to reduce the calls to Sanity backend, because with this method we request everything at once when loading comments.</p><p>So, let&rsquo;s open the <code>components/Comments/AllComments.js</code> file.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>useState</span>, <span style=color:#a6e22e>useEffect</span>, <span style=color:#a6e22e>createContext</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;react&#34;</span>;
+</span></span><span style=display:flex><span>[...]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#a6e22e>ReactionsContext</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>createContext</span>(<span style=color:#66d9ef>undefined</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>export</span> <span style=color:#66d9ef>default</span> <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>AllComments</span>() {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> [<span style=color:#a6e22e>reactions</span>, <span style=color:#a6e22e>setReactions</span>] <span style=color:#f92672>=</span> <span style=color:#a6e22e>useState</span>();
+</span></span><span style=display:flex><span>	[...]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>useEffect</span>(<span style=color:#66d9ef>async</span> () =&gt; {
+</span></span><span style=display:flex><span>		[...]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>client</span>
+</span></span><span style=display:flex><span>			.<span style=color:#a6e22e>fetch</span>(<span style=color:#e6db74>`*[_type == &#34;commentReactions&#34;]`</span>)
+</span></span><span style=display:flex><span>			.<span style=color:#a6e22e>then</span>(<span style=color:#a6e22e>r</span> =&gt; <span style=color:#a6e22e>setReactions</span>(<span style=color:#a6e22e>r</span>));
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	[...]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> (
+</span></span><span style=display:flex><span>		&lt;<span style=color:#f92672>ReactionsContext.Provider</span> <span style=color:#a6e22e>value</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>reactions</span>}&gt;
+</span></span><span style=display:flex><span>			&lt;<span style=color:#f92672>ul</span>&gt;{<span style=color:#a6e22e>commentList</span>}&lt;/<span style=color:#f92672>ul</span>&gt;
+</span></span><span style=display:flex><span>		&lt;/<span style=color:#f92672>ReactionsContext.Provider</span>&gt;
+</span></span><span style=display:flex><span>	);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>With these additions we now can access the <code>ReactionsContext</code> and the value of <code>reactions</code> from everywhere in our application.
+For the full code of this file see <a href=https://github.com/PandaSekh/React-Commenting-System/blob/main/components/Comments/AllComments.js>the repo</a>.</p><h2 id=emoji-selection>Emoji Selection</h2><p>As said in the beginning of this article, we need to define ourselves the available emojis.</p><p>Wherever you want, create a file to hold an array of emojis that you want to use in your reactions.
+I created a <code>lib</code> folder and inside a <code>emojiConfig.js</code> file.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#a6e22e>DEFAULT_EMOJI_OPTIONS</span> <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>	{
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emoji</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;😄&#34;</span>,
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>label</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;happy&#34;</span>,
+</span></span><span style=display:flex><span>	},
+</span></span><span style=display:flex><span>	{
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emoji</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;📚&#34;</span>,
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>label</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;books&#34;</span>,
+</span></span><span style=display:flex><span>	},
+</span></span><span style=display:flex><span>	{
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emoji</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;😟&#34;</span>,
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>label</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;suprised&#34;</span>,
+</span></span><span style=display:flex><span>	},
+</span></span><span style=display:flex><span>	{
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emoji</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;🐱&#34;</span>,
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>label</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;cat&#34;</span>,
+</span></span><span style=display:flex><span>	},
+</span></span><span style=display:flex><span>	{
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emoji</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;🐼&#34;</span>,
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>label</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;panda&#34;</span>,
+</span></span><span style=display:flex><span>	},
+</span></span><span style=display:flex><span>];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>export</span> { <span style=color:#a6e22e>DEFAULT_EMOJI_OPTIONS</span> };
+</span></span></code></pre></div><p>Now we can go back and finish our Reactions Block.</p><h2 id=full-reaction-block>Full Reaction Block</h2><p>Time to assemble everything!</p><p>First, import everything we need and create some global variables that we&rsquo;ll need later on.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#66d9ef>import</span> <span style=color:#a6e22e>EmojiWithCounter</span> <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;./EmojiWithCounter&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> <span style=color:#a6e22e>EmojiAdder</span> <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;./EmojiAdder&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>ReactionsContext</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;../Comments/AllComments&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>DEFAULT_EMOJI_OPTIONS</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;../../lib/emojiConfig&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> {<span style=color:#a6e22e>nanoid</span>} <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;nanoid&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>useState</span>, <span style=color:#a6e22e>useEffect</span>, <span style=color:#a6e22e>useContext</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;react&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>client</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;../../lib/sanityClient&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>let</span> <span style=color:#a6e22e>dbDebouncerTimer</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>let</span> <span style=color:#a6e22e>querySub</span>;
+</span></span></code></pre></div><p>Now prepare the state.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#66d9ef>export</span> <span style=color:#66d9ef>default</span> <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>ReactionBlock</span>({ <span style=color:#a6e22e>commentId</span> }) {
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// We get the initial reactions we previously fetched from the Context
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#75715e>// and filter them so we only have the ones for this comment.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#75715e>// Also, I wanted to sort them by their amount.
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>contextReactions</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>useContext</span>(<span style=color:#a6e22e>ReactionsContext</span>)
+</span></span><span style=display:flex><span>		<span style=color:#f92672>?</span>.<span style=color:#a6e22e>filter</span>(<span style=color:#a6e22e>r</span> =&gt; <span style=color:#a6e22e>r</span>.<span style=color:#a6e22e>commentId</span> <span style=color:#f92672>===</span> <span style=color:#a6e22e>commentId</span>)
+</span></span><span style=display:flex><span>		.<span style=color:#a6e22e>map</span>(<span style=color:#a6e22e>r</span> =&gt; <span style=color:#a6e22e>r</span>.<span style=color:#a6e22e>reactions</span>)
+</span></span><span style=display:flex><span>		<span style=color:#f92672>?</span>.<span style=color:#a6e22e>sort</span>((<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span>) =&gt; (<span style=color:#a6e22e>a</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>b</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>?</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>:</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>))[<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> [<span style=color:#a6e22e>reactions</span>, <span style=color:#a6e22e>setReactions</span>] <span style=color:#f92672>=</span> <span style=color:#a6e22e>useState</span>([]);
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> [<span style=color:#a6e22e>shouldUpdateDb</span>, <span style=color:#a6e22e>setShouldUpdateDb</span>] <span style=color:#f92672>=</span> <span style=color:#a6e22e>useState</span>(<span style=color:#66d9ef>false</span>);
+</span></span></code></pre></div><p>Now we use the <code>useEffect</code> hook to subscribe to the query and get real-time updates.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#a6e22e>useEffect</span>(() =&gt; {
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// If there are reactions in the context, set them
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>contextReactions</span>) <span style=color:#a6e22e>setReactions</span>(<span style=color:#a6e22e>contextReactions</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// Subscribe to the query Observable and update the state on each update
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>query</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>`*[_type == &#34;commentReactions&#34; &amp;&amp; commentId==&#34;</span><span style=color:#e6db74>${</span><span style=color:#a6e22e>commentId</span><span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;]`</span>;
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>querySub</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>client</span>.<span style=color:#a6e22e>listen</span>(<span style=color:#a6e22e>query</span>).<span style=color:#a6e22e>subscribe</span>(<span style=color:#a6e22e>update</span> =&gt; {
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>update</span>) {
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>setReactions</span>([
+</span></span><span style=display:flex><span>				...<span style=color:#a6e22e>update</span>.<span style=color:#a6e22e>result</span>.<span style=color:#a6e22e>reactions</span>.<span style=color:#a6e22e>sort</span>((<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span>) =&gt;
+</span></span><span style=display:flex><span>					<span style=color:#a6e22e>a</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>b</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>?</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>:</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>				),
+</span></span><span style=display:flex><span>			]);
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>	});
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// Unsubscribe on Component unmount
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>return</span> () =&gt; {
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>querySub</span>.<span style=color:#a6e22e>unsubscribe</span>();
+</span></span><span style=display:flex><span>	};
+</span></span><span style=display:flex><span>}, []);
+</span></span></code></pre></div><p>Now we need a function to update the database whenever we click an emoji.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#a6e22e>updateEmojiCount</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>emoji</span> =&gt; {
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>setShouldUpdateDb</span>(<span style=color:#66d9ef>false</span>);
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>let</span> <span style=color:#a6e22e>emojiFromState</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>reactions</span>.<span style=color:#a6e22e>filter</span>(<span style=color:#a6e22e>em</span> =&gt; <span style=color:#a6e22e>em</span>.<span style=color:#a6e22e>emoji</span> <span style=color:#f92672>===</span> <span style=color:#a6e22e>emoji</span>)[<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// If the selected emoji wasn&#39;t in the state, it&#39;s a new one
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span><span style=color:#a6e22e>emojiFromState</span>) {
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emojiFromState</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>DEFAULT_EMOJI_OPTIONS</span>.<span style=color:#a6e22e>filter</span>(
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>em</span> =&gt; <span style=color:#a6e22e>em</span>.<span style=color:#a6e22e>emoji</span> <span style=color:#f92672>===</span> <span style=color:#a6e22e>emoji</span>
+</span></span><span style=display:flex><span>		)[<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emojiFromState</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>setReactions</span>(<span style=color:#a6e22e>reactions</span> =&gt;
+</span></span><span style=display:flex><span>			[...<span style=color:#a6e22e>reactions</span>, <span style=color:#a6e22e>emojiFromState</span>].<span style=color:#a6e22e>sort</span>((<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span>) =&gt;
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>a</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>b</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>?</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>:</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>			)
+</span></span><span style=display:flex><span>		);
+</span></span><span style=display:flex><span>	} <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emojiFromState</span>.<span style=color:#a6e22e>counter</span><span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>setReactions</span>(<span style=color:#a6e22e>reactions</span> =&gt;
+</span></span><span style=display:flex><span>			[
+</span></span><span style=display:flex><span>				...<span style=color:#a6e22e>reactions</span>.<span style=color:#a6e22e>filter</span>(
+</span></span><span style=display:flex><span>					<span style=color:#a6e22e>rea</span> =&gt; <span style=color:#a6e22e>rea</span>.<span style=color:#a6e22e>emoji</span> <span style=color:#f92672>!==</span> <span style=color:#a6e22e>emojiFromState</span>.<span style=color:#a6e22e>emoji</span>
+</span></span><span style=display:flex><span>				),
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>emojiFromState</span>,
+</span></span><span style=display:flex><span>			].<span style=color:#a6e22e>sort</span>((<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span>) =&gt; (<span style=color:#a6e22e>a</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>b</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>?</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>:</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>))
+</span></span><span style=display:flex><span>		);
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>setShouldUpdateDb</span>(<span style=color:#66d9ef>true</span>);
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><p>This function toggles the <code>shouldUpdateDb</code> state and we can listen to that change to call another function.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#a6e22e>useEffect</span>(() =&gt; {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>shouldUpdateDb</span>) <span style=color:#a6e22e>updateReactionsOnDatabase</span>();
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>setShouldUpdateDb</span>(<span style=color:#66d9ef>false</span>);
+</span></span><span style=display:flex><span>}, [<span style=color:#a6e22e>shouldUpdateDb</span>]);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>function</span> <span style=color:#a6e22e>updateReactionsOnDatabase</span>() {
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>clearTimeout</span>(<span style=color:#a6e22e>dbDebouncerTimer</span>);
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>dbDebouncerTimer</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>setTimeout</span>(() =&gt; {
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>fetch</span>(<span style=color:#e6db74>&#34;/api/addReaction&#34;</span>, {
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>method</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;POST&#34;</span>,
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>body</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>JSON</span>.<span style=color:#a6e22e>stringify</span>({
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>commentId</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>commentId</span>,
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>reactions</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>reactions</span>,
+</span></span><span style=display:flex><span>			}),
+</span></span><span style=display:flex><span>		});
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>dbDebouncerTimer</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>null</span>;
+</span></span><span style=display:flex><span>	}, <span style=color:#ae81ff>1000</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>All of this is needed to debounce the database update. Our Reactions Block will now update the database one second after the last click, meaning that 10 click won&rsquo;t perform 10 database updates.</p><p>Finally, we map the reactions and render everything.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#a6e22e>mappedReactions</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>reactions</span>.<span style=color:#a6e22e>map</span>(<span style=color:#a6e22e>reaction</span> =&gt; (
+</span></span><span style=display:flex><span>	&lt;<span style=color:#f92672>EmojiWithCounter</span>
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>key</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>nanoid</span>()}
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emoji</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>reaction</span>.<span style=color:#a6e22e>emoji</span>}
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>emojiLabel</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>reaction</span>}
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>initialCounter</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>reaction</span>.<span style=color:#a6e22e>counter</span>}
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>onIncrease</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>updateEmojiCount</span>}
+</span></span><span style=display:flex><span>	/&gt;
+</span></span><span style=display:flex><span>));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>return</span> (
+</span></span><span style=display:flex><span>	&lt;<span style=color:#f92672>div</span> <span style=color:#a6e22e>className</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;reaction-block&#34;</span>&gt;
+</span></span><span style=display:flex><span>		{<span style=color:#a6e22e>mappedReactions</span>}
+</span></span><span style=display:flex><span>		&lt;<span style=color:#f92672>EmojiAdder</span>
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>selectedEmojis</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>reactions</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>updateEmojiCount</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>updateEmojiCount</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>EMOJI_OPTIONS</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>DEFAULT_EMOJI_OPTIONS</span>}
+</span></span><span style=display:flex><span>		/&gt;
+</span></span><span style=display:flex><span>	&lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>);
+</span></span></code></pre></div><p>The full code (not in the same order) is as follows:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-jsx data-lang=jsx><span style=display:flex><span><span style=color:#66d9ef>import</span> <span style=color:#a6e22e>EmojiWithCounter</span> <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;./EmojiWithCounter&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> {<span style=color:#a6e22e>nanoid</span>} <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;nanoid&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> <span style=color:#a6e22e>EmojiAdder</span> <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;./EmojiAdder&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>useState</span>, <span style=color:#a6e22e>useEffect</span>, <span style=color:#a6e22e>useContext</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;react&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>ReactionsContext</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;../Comments/AllComments&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>client</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;../../lib/sanityClient&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>DEFAULT_EMOJI_OPTIONS</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;../../lib/emojiConfig&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>let</span> <span style=color:#a6e22e>dbDebouncerTimer</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>export</span> <span style=color:#66d9ef>default</span> <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>ReactionBlock</span>({ <span style=color:#a6e22e>commentId</span> }) {
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// We get the initial reactions we previously fetched from the Context
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>contextReactions</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>useContext</span>(<span style=color:#a6e22e>ReactionsContext</span>)
+</span></span><span style=display:flex><span>		<span style=color:#f92672>?</span>.<span style=color:#a6e22e>filter</span>(<span style=color:#a6e22e>r</span> =&gt; <span style=color:#a6e22e>r</span>.<span style=color:#a6e22e>commentId</span> <span style=color:#f92672>===</span> <span style=color:#a6e22e>commentId</span>)
+</span></span><span style=display:flex><span>		.<span style=color:#a6e22e>map</span>(<span style=color:#a6e22e>r</span> =&gt; <span style=color:#a6e22e>r</span>.<span style=color:#a6e22e>reactions</span>)
+</span></span><span style=display:flex><span>		<span style=color:#f92672>?</span>.<span style=color:#a6e22e>sort</span>((<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span>) =&gt; (<span style=color:#a6e22e>a</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>b</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>?</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>:</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>))[<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> [<span style=color:#a6e22e>reactions</span>, <span style=color:#a6e22e>setReactions</span>] <span style=color:#f92672>=</span> <span style=color:#a6e22e>useState</span>([]);
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> [<span style=color:#a6e22e>shouldUpdateDb</span>, <span style=color:#a6e22e>setShouldUpdateDb</span>] <span style=color:#f92672>=</span> <span style=color:#a6e22e>useState</span>(<span style=color:#66d9ef>false</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>let</span> <span style=color:#a6e22e>querySub</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>undefined</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>useEffect</span>(() =&gt; {
+</span></span><span style=display:flex><span>		<span style=color:#75715e>// If there are reactions in the context, set them
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>contextReactions</span>) <span style=color:#a6e22e>setReactions</span>(<span style=color:#a6e22e>contextReactions</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>		<span style=color:#75715e>// Subscribe to the query Observable and update the state on each update
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>query</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>`*[_type == &#34;commentReactions&#34; &amp;&amp; commentId==&#34;</span><span style=color:#e6db74>${</span><span style=color:#a6e22e>commentId</span><span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;]`</span>;
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>querySub</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>client</span>.<span style=color:#a6e22e>listen</span>(<span style=color:#a6e22e>query</span>).<span style=color:#a6e22e>subscribe</span>(<span style=color:#a6e22e>update</span> =&gt; {
+</span></span><span style=display:flex><span>			<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>update</span>) {
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>setReactions</span>([
+</span></span><span style=display:flex><span>					...<span style=color:#a6e22e>update</span>.<span style=color:#a6e22e>result</span>.<span style=color:#a6e22e>reactions</span>.<span style=color:#a6e22e>sort</span>((<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span>) =&gt;
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>a</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>b</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>?</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>:</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>					),
+</span></span><span style=display:flex><span>				]);
+</span></span><span style=display:flex><span>			}
+</span></span><span style=display:flex><span>		});
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>		<span style=color:#75715e>// Unsubscribe on Component unmount
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#66d9ef>return</span> () =&gt; {
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>querySub</span>.<span style=color:#a6e22e>unsubscribe</span>();
+</span></span><span style=display:flex><span>		};
+</span></span><span style=display:flex><span>	}, []);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#a6e22e>useEffect</span>(() =&gt; {
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>shouldUpdateDb</span>) <span style=color:#a6e22e>updateReactionsOnDatabase</span>();
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>setShouldUpdateDb</span>(<span style=color:#66d9ef>false</span>);
+</span></span><span style=display:flex><span>	}, [<span style=color:#a6e22e>shouldUpdateDb</span>]);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// Onclick, update the emoji counter and start a timer to update the database
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>updateEmojiCount</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>emoji</span> =&gt; {
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>setShouldUpdateDb</span>(<span style=color:#66d9ef>false</span>);
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>let</span> <span style=color:#a6e22e>emojiFromState</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>reactions</span>.<span style=color:#a6e22e>filter</span>(<span style=color:#a6e22e>em</span> =&gt; <span style=color:#a6e22e>em</span>.<span style=color:#a6e22e>emoji</span> <span style=color:#f92672>===</span> <span style=color:#a6e22e>emoji</span>)[<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span><span style=color:#a6e22e>emojiFromState</span>) {
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>emojiFromState</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>DEFAULT_EMOJI_OPTIONS</span>.<span style=color:#a6e22e>filter</span>(
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>em</span> =&gt; <span style=color:#a6e22e>em</span>.<span style=color:#a6e22e>emoji</span> <span style=color:#f92672>===</span> <span style=color:#a6e22e>emoji</span>
+</span></span><span style=display:flex><span>			)[<span style=color:#ae81ff>0</span>];
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>emojiFromState</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>setReactions</span>(<span style=color:#a6e22e>reactions</span> =&gt;
+</span></span><span style=display:flex><span>				[...<span style=color:#a6e22e>reactions</span>, <span style=color:#a6e22e>emojiFromState</span>].<span style=color:#a6e22e>sort</span>((<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span>) =&gt;
+</span></span><span style=display:flex><span>					<span style=color:#a6e22e>a</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>b</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>?</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>:</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>				)
+</span></span><span style=display:flex><span>			);
+</span></span><span style=display:flex><span>		} <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>emojiFromState</span>.<span style=color:#a6e22e>counter</span><span style=color:#f92672>++</span>;
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>setReactions</span>(<span style=color:#a6e22e>reactions</span> =&gt;
+</span></span><span style=display:flex><span>				[
+</span></span><span style=display:flex><span>					...<span style=color:#a6e22e>reactions</span>.<span style=color:#a6e22e>filter</span>(
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>rea</span> =&gt; <span style=color:#a6e22e>rea</span>.<span style=color:#a6e22e>emoji</span> <span style=color:#f92672>!==</span> <span style=color:#a6e22e>emojiFromState</span>.<span style=color:#a6e22e>emoji</span>
+</span></span><span style=display:flex><span>					),
+</span></span><span style=display:flex><span>					<span style=color:#a6e22e>emojiFromState</span>,
+</span></span><span style=display:flex><span>				].<span style=color:#a6e22e>sort</span>((<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span>) =&gt; (<span style=color:#a6e22e>a</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>b</span>.<span style=color:#a6e22e>counter</span> <span style=color:#f92672>?</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>:</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>))
+</span></span><span style=display:flex><span>			);
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>setShouldUpdateDb</span>(<span style=color:#66d9ef>true</span>);
+</span></span><span style=display:flex><span>	};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#75715e>// Debouncer to avoid updating the database on every click
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>function</span> <span style=color:#a6e22e>updateReactionsOnDatabase</span>() {
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>clearTimeout</span>(<span style=color:#a6e22e>dbDebouncerTimer</span>);
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>dbDebouncerTimer</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>setTimeout</span>(() =&gt; {
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>fetch</span>(<span style=color:#e6db74>&#34;/api/addReaction&#34;</span>, {
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>method</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;POST&#34;</span>,
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>body</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>JSON</span>.<span style=color:#a6e22e>stringify</span>({
+</span></span><span style=display:flex><span>					<span style=color:#a6e22e>commentId</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>commentId</span>,
+</span></span><span style=display:flex><span>					<span style=color:#a6e22e>reactions</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>reactions</span>,
+</span></span><span style=display:flex><span>				}),
+</span></span><span style=display:flex><span>			});
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>dbDebouncerTimer</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>null</span>;
+</span></span><span style=display:flex><span>		}, <span style=color:#ae81ff>1000</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>1</span>);
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>mappedReactions</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>reactions</span>.<span style=color:#a6e22e>map</span>(<span style=color:#a6e22e>reaction</span> =&gt; (
+</span></span><span style=display:flex><span>		&lt;<span style=color:#f92672>EmojiWithCounter</span>
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>key</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>nanoid</span>()}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>emoji</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>reaction</span>.<span style=color:#a6e22e>emoji</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>emojiLabel</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>reaction</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>initialCounter</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>reaction</span>.<span style=color:#a6e22e>counter</span>}
+</span></span><span style=display:flex><span>			<span style=color:#a6e22e>onIncrease</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>updateEmojiCount</span>}
+</span></span><span style=display:flex><span>		/&gt;
+</span></span><span style=display:flex><span>	));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> (
+</span></span><span style=display:flex><span>		&lt;<span style=color:#f92672>div</span> <span style=color:#a6e22e>className</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;reaction-block&#34;</span>&gt;
+</span></span><span style=display:flex><span>			{<span style=color:#a6e22e>mappedReactions</span>}
+</span></span><span style=display:flex><span>			&lt;<span style=color:#f92672>EmojiAdder</span>
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>selectedEmojis</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>reactions</span>}
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>updateEmojiCount</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>updateEmojiCount</span>}
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>EMOJI_OPTIONS</span><span style=color:#f92672>=</span>{<span style=color:#a6e22e>DEFAULT_EMOJI_OPTIONS</span>}
+</span></span><span style=display:flex><span>			/&gt;
+</span></span><span style=display:flex><span>		&lt;/<span style=color:#f92672>div</span>&gt;
+</span></span><span style=display:flex><span>	);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=backend>Backend</h2><p>Last but not least, we need a serverless function to update our database. This is way easier than the comment creation function.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#75715e>// pages/api/addReaction.js
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> { <span style=color:#a6e22e>writeClient</span> } <span style=color:#a6e22e>from</span> <span style=color:#e6db74>&#34;../../lib/sanityClient&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>export</span> <span style=color:#66d9ef>default</span> (<span style=color:#a6e22e>req</span>, <span style=color:#a6e22e>res</span>) =&gt; {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> <span style=color:#66d9ef>new</span> Promise(<span style=color:#a6e22e>resolve</span> =&gt; {
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>body</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>JSON</span>.<span style=color:#a6e22e>parse</span>(<span style=color:#a6e22e>req</span>.<span style=color:#a6e22e>body</span>);
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>_id</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>body</span>.<span style=color:#a6e22e>commentId</span>;
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>reactions</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>body</span>.<span style=color:#a6e22e>reactions</span>;
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>reactions</span>.<span style=color:#a6e22e>forEach</span>(<span style=color:#a6e22e>r</span> =&gt; (<span style=color:#a6e22e>r</span>.<span style=color:#a6e22e>_key</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>r</span>.<span style=color:#a6e22e>label</span>));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>		<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>query</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>`*[_type == &#34;commentReactions&#34; &amp;&amp; commentId == &#34;</span><span style=color:#e6db74>${</span><span style=color:#a6e22e>_id</span><span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;]{_id}[0]`</span>;
+</span></span><span style=display:flex><span>		<span style=color:#a6e22e>writeClient</span>.<span style=color:#a6e22e>fetch</span>(<span style=color:#a6e22e>query</span>).<span style=color:#a6e22e>then</span>(<span style=color:#a6e22e>comment</span> =&gt; {
+</span></span><span style=display:flex><span>			<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>comment</span>) {
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>writeClient</span>
+</span></span><span style=display:flex><span>					.<span style=color:#a6e22e>patch</span>(<span style=color:#a6e22e>comment</span>.<span style=color:#a6e22e>_id</span>)
+</span></span><span style=display:flex><span>					.<span style=color:#a6e22e>set</span>({ <span style=color:#a6e22e>reactions</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>reactions</span> })
+</span></span><span style=display:flex><span>					.<span style=color:#a6e22e>commit</span>()
+</span></span><span style=display:flex><span>					.<span style=color:#a6e22e>then</span>(() =&gt; {
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>resolve</span>(<span style=color:#a6e22e>res</span>.<span style=color:#a6e22e>status</span>(<span style=color:#ae81ff>200</span>).<span style=color:#a6e22e>end</span>());
+</span></span><span style=display:flex><span>					});
+</span></span><span style=display:flex><span>			} <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>				<span style=color:#a6e22e>writeClient</span>
+</span></span><span style=display:flex><span>					.<span style=color:#a6e22e>create</span>({
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>_type</span><span style=color:#f92672>:</span> <span style=color:#e6db74>&#34;commentReactions&#34;</span>,
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>commentId</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>_id</span>,
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>reactions</span><span style=color:#f92672>:</span> <span style=color:#a6e22e>reactions</span>,
+</span></span><span style=display:flex><span>					})
+</span></span><span style=display:flex><span>					.<span style=color:#a6e22e>then</span>(() =&gt; {
+</span></span><span style=display:flex><span>						<span style=color:#a6e22e>resolve</span>(<span style=color:#a6e22e>res</span>.<span style=color:#a6e22e>status</span>(<span style=color:#ae81ff>200</span>).<span style=color:#a6e22e>end</span>());
+</span></span><span style=display:flex><span>					});
+</span></span><span style=display:flex><span>			}
+</span></span><span style=display:flex><span>		});
+</span></span><span style=display:flex><span>	});
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></div><h2 id=styling>Styling</h2><p>As promised, here&rsquo;s some basic styling:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-css data-lang=css><span style=display:flex><span>.<span style=color:#a6e22e>emoji</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>margin</span>: <span style=color:#ae81ff>10</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>font-size</span>: <span style=color:#ae81ff>25</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>display</span>: <span style=color:#66d9ef>flex</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>align-items</span>: <span style=color:#66d9ef>center</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>cursor</span>: <span style=color:#66d9ef>pointer</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>vertical-align</span>: <span style=color:#66d9ef>middle</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>transform</span>: translateZ(<span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>box-shadow</span>: <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1</span><span style=color:#66d9ef>px</span> rgba(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>);
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>backface-visibility</span>: <span style=color:#66d9ef>hidden</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>-moz-</span>osx-font-smoothing: grayscale;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>transition-duration</span>: <span style=color:#ae81ff>0.1</span><span style=color:#66d9ef>s</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>transition-property</span>: <span style=color:#66d9ef>transform</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>reaction-div</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>margin-top</span>: <span style=color:#ae81ff>5</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>display</span>: <span style=color:#66d9ef>inline-flex</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>flex-flow</span>: <span style=color:#66d9ef>wrap</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>emoji-container</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>position</span>: <span style=color:#66d9ef>relative</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>user-select</span>: <span style=color:#66d9ef>none</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>display</span>: <span style=color:#66d9ef>flex</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>emoji-counter-div</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>position</span>: <span style=color:#66d9ef>absolute</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>top</span>: <span style=color:#ae81ff>-2</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>right</span>: <span style=color:#ae81ff>3</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>z-index</span>: <span style=color:#ae81ff>-5</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>emoji-counter</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>font-weight</span>: <span style=color:#66d9ef>bold</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>padding</span>: <span style=color:#ae81ff>2</span><span style=color:#66d9ef>px</span> <span style=color:#ae81ff>5</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>border-radius</span>: <span style=color:#ae81ff>30</span><span style=color:#66d9ef>%</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>background-color</span>: <span style=color:#ae81ff>#f55742</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>color</span>: <span style=color:#ae81ff>#fefefe</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>emoji</span>:<span style=color:#a6e22e>hover</span><span style=color:#f92672>,</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>emoji</span>:<span style=color:#a6e22e>focus</span><span style=color:#f92672>,</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>emoji</span>:<span style=color:#a6e22e>active</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>transform</span>: scale(<span style=color:#ae81ff>1.1</span>);
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>comment-info</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>margin</span>: <span style=color:#66d9ef>auto</span> <span style=color:#ae81ff>0</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>comment-info-container</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>height</span>: <span style=color:#ae81ff>40</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>display</span>: <span style=color:#66d9ef>flex</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>reaction-block</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>display</span>: <span style=color:#66d9ef>inline-flex</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>flex-flow</span>: <span style=color:#66d9ef>wrap</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>reaction-adder-emoji</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>user-select</span>: <span style=color:#66d9ef>none</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>position</span>: <span style=color:#66d9ef>relative</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>display</span>: <span style=color:#66d9ef>inline-block</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>emoji-adder-menu-open</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>position</span>: <span style=color:#66d9ef>absolute</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>display</span>: <span style=color:#66d9ef>flex</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>top</span>: <span style=color:#ae81ff>0</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>left</span>: <span style=color:#ae81ff>35</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>border-radius</span>: <span style=color:#ae81ff>10</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>box-shadow</span>: rgba(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0.24</span>) <span style=color:#ae81ff>0</span><span style=color:#66d9ef>px</span> <span style=color:#ae81ff>3</span><span style=color:#66d9ef>px</span> <span style=color:#ae81ff>8</span><span style=color:#66d9ef>px</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>background-color</span>: <span style=color:#ae81ff>#fefefe</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>flex-wrap</span>: <span style=color:#66d9ef>wrap</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>z-index</span>: <span style=color:#ae81ff>10</span>;
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>width</span>: <span style=color:#ae81ff>400</span><span style=color:#66d9ef>%</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>.<span style=color:#a6e22e>emoji-adder-menu-closed</span> {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>display</span>: <span style=color:#66d9ef>none</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=conclusion>Conclusion</h2><p>This series is now finished. I hope it was useful for someone and that everything was -mostly- clear.
+If you have any doubts you can comment here or write me on my social media.</p><p>Full repo: <a href=https://github.com/PandaSekh/React-Commenting-System>GitHub</a>.
+Demo <a href=https://react-commenting-system.vercel.app/>here</a>.</p><p>Full Series:</p><ul><li>1/3 <a href=https://alessiofranceschi.dev/blog/react-commenting-system/ title="Building a Real-Time Commenting System in React">Building a Real-Time Commenting System in React</a></li><li>2/3 <a href=https://alessiofranceschi.dev/blog/react-commenting-system-part-2/ title="Making Nested Comments">Making Nested Comments</a></li><li>3/3 <a href=https://alessiofranceschi.dev/blog/react-commenting-system-part-3/ title="Emoji Reactions for Comments">Emoji Reactions for Comments</a></li></ul></article></section></div><footer class=footer><section class=container>©
+2022
+Alessio Franceschi
+·
+Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/PandaSekh/hugo-coder-lt>Coder-Lt</a>.</section></footer></main></body></html>
