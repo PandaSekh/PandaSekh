@@ -46,7 +46,7 @@ pygmentscodefencesguesssyntax = true
   name = "RSS"
   image = "/image/social/rss.svg"
   weight = 10
-  url = "http://localhost:1313/index.rss"
+  url = "https://alessiofranceschi.dev/index.rss"
 
 # Menu links
 [[menu.main]]
