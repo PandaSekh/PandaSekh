@@ -1,0 +1,13 @@
+{{- $src := .Get "src" -}}
+{{- $alt := .Get "alt" -}}
+{{- $w := .Get "w" -}}
+{{- $h := .Get "h" -}}
+{{ with .Page.Resources.GetMatch $src }}
+	{{ with .Resize (printf "%dx%d webp" .Width .Height) }}
+		<img src="{{ .RelPermalink }}"
+			{{ with $w }} width="{{ $w }}" {{ else }} width="{{ .Width }}" {{ end }}
+			{{ with $h }} height="{{ $h }}" {{ else }} height="{{ .Height }}" {{ end }}
+			{{ with $alt }} alt="{{ $alt }}" {{ end }}
+		>
+	{{ end }}
+{{ end }}

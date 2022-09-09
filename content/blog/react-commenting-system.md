@@ -390,9 +390,9 @@ return (
 
 That's it! Add the `AllComments` component in the `index.js` file and now you can add and see comments with real-time updates!
 
-[In the second part]({{< ref "/posts/react-commenting-system-part-2" >}} "In the second part"), we'll add the nested comments funcionality and some other small features, like Markdown spport.
+[In the second part]({{< ref "/blog/react-commenting-system-part-2" >}} "In the second part"), we'll add the nested comments funcionality and some other small features, like Markdown spport.
 
 Full Series:
-- 1/3 <Link passHref href="/blog/react-commenting-system"><a>Building a Real-Time Commenting System in React</a></Link>
-- 2/3 <Link passHref href="/blog/react-commenting-system-part-2"><a>Making Nested Comments</a></Link>
-- 3/3 <Link passHref href="/blog/react-commenting-system-part-3"><a>Emoji Reactions for Comments</a></Link>
+- 1/3 [Building a Real-Time Commenting System in React]({{< ref "/blog/react-commenting-system" >}} "Building a Real-Time Commenting System in React")
+- 2/3 [Making Nested Comments]({{< ref "/blog/react-commenting-system-part-2" >}} "Making Nested Comments")
+- 3/3 [Emoji Reactions for Comments]({{< ref "/blog/react-commenting-system-part-3" >}} "Emoji Reactions for Comments")
