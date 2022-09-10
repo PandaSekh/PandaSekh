@@ -52,3 +52,5 @@ transform.up = directionToLookAt;
 Basically, we rotate the Y axis of the object.
 
 That's all!
+
+{{< comments >}}

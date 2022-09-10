@@ -507,3 +507,5 @@ Full Series:
 - 1/3 [Building a Real-Time Commenting System in React]({{< ref "/blog/react-commenting-system" >}} "Building a Real-Time Commenting System in React")
 - 2/3 [Making Nested Comments]({{< ref "/blog/react-commenting-system-part-2" >}} "Making Nested Comments")
 - 3/3 [Emoji Reactions for Comments]({{< ref "/blog/react-commenting-system-part-3" >}} "Emoji Reactions for Comments")
+
+{{< comments >}}

@@ -47,3 +47,5 @@ Suggestion: Make the gameplay clear.
 
 
 I think that's all. That experience was fun and I hope I'll be able to do it again one day.
+
+{{< comments >}}

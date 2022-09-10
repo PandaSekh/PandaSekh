@@ -343,3 +343,5 @@ If you have any doubts you can comment here or write me on my social media.
 Full Series:
 - 1/2 [NextJS Free Commenting System using Github Part 1]({{< ref "/blog/nextjs-free-commenting-system-part-1" >}} "NextJS Free Commenting System using Github Part 1")
 - 2/2 [NextJS Free Commenting System using Github Part 2]({{< ref "/blog/nextjs-free-commenting-system-part-2" >}} "NextJS Free Commenting System using Github Part 2")
+
+{{< comments >}}
