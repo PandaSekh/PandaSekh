@@ -3,6 +3,7 @@ title = "Alessio Franceschi"
 theme = ["hugo-cloak-email", "hugo-coder-lt"]
 languagecode = "en-us"
 defaultcontentlanguage = "en"
+pluralizeListTitles = false
 copyright = 'Copyright Alessio Franceschi'
 [author]
   name = 'Alessio Franceschi'
@@ -35,13 +36,18 @@ pygmentscodefencesguesssyntax = true
 [[params.social]]
   name = "LinkedIn"
   image = "/image/social/linkedin.svg"
-  weight = 3
+  weight = 1
   url = "https://www.linkedin.com/in/alessio-franceschi/"
 [[params.social]]
   name = "Github"
   image = "/image/social/github.svg"
   weight = 0
   url = "https://github.com/PandaSekh/"
+[[params.social]]
+  name = "Twitter"
+  image = "/image/social/twitter.svg"
+  weight = 2
+  url = "https://twitter.com/PandaSekh/"
 [[params.social]]
   name = "RSS"
   image = "/image/social/rss.svg"
@@ -58,7 +64,7 @@ pygmentscodefencesguesssyntax = true
   weight = 2
   url = "about/"
 [permalinks]
-  posts = '/blog/:slugorfilename'
+  blog = '/blog/:slugorfilename'
 [imaging]
   bgColor = '#ffffff'
   hint = 'photo'
