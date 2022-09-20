@@ -45,14 +45,14 @@ pygmentscodefencesguesssyntax = true
   url = "https://github.com/PandaSekh/"
 [[params.social]]
   name = "Twitter"
-  image = "/image/social/twitter.svg"
+  image = "/image/social/bird.svg"
   weight = 2
   url = "https://twitter.com/PandaSekh/"
 [[params.social]]
   name = "RSS"
-  image = "/image/social/rss.svg"
+  image = "/image/social/feed.svg"
   weight = 10
-  url = "https://alessiofranceschi.dev/index.xml"
+  url = "/index.xml"
 
 # Menu links
 [[menu.main]]
