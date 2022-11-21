@@ -507,10 +507,7 @@ figure {
   width: 100%;
   padding-left: 2rem;
   padding-right: 2rem; }
-  @media only screen and (max-width: 576px) {
-    .container {
-      display: flex;
-      flex-direction: column; } }
+
 .fab {
   font-weight: 400; }
 
