@@ -2,7 +2,7 @@
 title: Keeping a Today I Learned Repository
 date: 2023-02-23
 categories: [learning, productivity]
-description: "Learn about the benefits of keeping a "Today I Learned" (TIL) repository for documenting everything you learn as a developer or curious person. Never forget how to do something again with this simple, accessible way to archive your knowledge."
+description: Learn about the benefits of keeping a "Today I Learned" (TIL) repository for documenting everything you learn as a developer or curious person. Never forget how to do something again with this simple, accessible way to archive your knowledge.
 ---
 
 As a developer and a curious person, I'm constantly learning new things. Whether it's a new programming language, a new framework, or a new tool, there's always something to discover and explore. However, I have a short memory, and I often forget how to do things that I've learned in the past.
