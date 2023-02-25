@@ -11,4 +11,4 @@ When I'm not coding or studying, I like to spend time tending to my hot peppers 
 
 I'm also passionate about writing, thinkering with my servers (a big one and several Raspberries) and drawing (I'm still learning!).
 
-If you have any feedback, suggestions, or corrections, please feel free to contact me via email (which you can find on my [GitHub profile](https://github.com/PandaSekh)) or [Twitter](https://twitter.com/PandaSekh). 
+If you have any feedback, suggestions, or corrections, please feel free to contact me via email (which you can find on my [GitHub profile](https://github.com/PandaSekh)) or [Mastodon](https://mastodon.social/@pandasekh). 
