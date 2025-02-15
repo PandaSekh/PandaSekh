@@ -8,15 +8,15 @@ description: "Automate git commit messages with a script that uses AI to generat
 Do you just want the code? [Here it is](https://github.com/PandaSekh/scripts/blob/main/ai-commit.sh).
 
 Git commit messages are important but can be time-consuming to write. They're fundamental in any project, providing a clear history of changes for your team. But let's be honest—commit messages are often neglected or oversimplified. They should:
-- provide a short recap of what changed;
-- explain WHY it changed;
-- explain HOW it changed, if necessary;
-- associate any relevant information (like the ticket with the requirements);
+- Provide a short recap of what changed;
+- Explain WHY it changed;
+- Explain HOW it changed, if necessary;
+- Associate any relevant information (like the ticket with the requirements);
 
 But fear not, here's how I used AI to help me. Here's a script that sends the diff of your staged files to a local Ollama instance (for privacy and expecially cost), which then generates a commit message.
 
 ## Script Analysis
-[Full updated script here.](https://github.com/PandaSekh/scripts/blob/main/ai-commit.sh).
+[Full updated script here](https://github.com/PandaSekh/scripts/blob/main/ai-commit.sh).  
 Here’s the breakdown of the core parts of the script:
 
 1. Getting the Diff
@@ -143,6 +143,6 @@ The commit message is copied and written to terminal. We already automated the c
 - It struggles with new or deleted files.
 - The AI can occasionally hallucinate details not present in the diff. That's AI for you.
 
-[Here is the updated script.](https://github.com/PandaSekh/scripts/blob/main/ai-commit.sh).
+[Here is the updated script](https://github.com/PandaSekh/scripts/blob/main/ai-commit.sh).
 
 {{< comments >}}
