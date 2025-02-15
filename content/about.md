@@ -4,11 +4,12 @@ date: 2022-08-24
 draft: false
 ---
 
-Hi there, I'm Alessio, a Software Engineer from Italy!
-Programming, learning new things, and gardening are my main hobbies, and they take up most of my free time. I'm passionate about exploring different programming languages and technologies, and I'm constantly seeking out new ways to challenge myself and improve my skills.
+Hi there! I'm Alessio, a Software Engineer from Italy.
 
-When I'm not coding or studying, I like to spend time tending to my hot peppers garden. I find gardening to be a relaxing and fulfilling activity, and I enjoy experimenting with different plant varieties and growing techniques.
+I spend most of my free time programming, reading, writing, and gardening. I'm passionate about exploring different programming languages and technologies, always looking for new challenges to improve my skills.
 
-I'm also passionate about writing, thinkering with my servers (a big one and several Raspberries) and drawing (I'm still learning!).
+When I’m not coding or learning something new, you’ll probably find me in my hot pepper garden. Gardening is both relaxing and rewarding—I love experimenting with different plant varieties and growing techniques.
 
-If you have any feedback, suggestions, or corrections, please feel free to contact me via email (which you can find on my [GitHub profile](https://github.com/PandaSekh)) or [Mastodon](https://mastodon.social/@pandasekh). 
+I also enjoy writing, tinkering with my servers (one large machine and several Raspberry Pis), and learning to draw. I’m still a beginner, but I’m having fun with it!
+
+If you have any feedback, suggestions, or just want to say hi, feel free to reach out via email (which you can find on my [GitHub profile](https://github.com/PandaSekh)). 
