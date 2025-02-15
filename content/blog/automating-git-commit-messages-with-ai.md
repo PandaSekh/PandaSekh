@@ -15,7 +15,7 @@ Git commit messages are important but can be time-consuming to write. They're fu
 
 But fear not, here's how I used AI to help me. Here's a script that sends the diff of your staged files to a local Ollama instance (for privacy and expecially cost), which then generates a commit message.
 
-## Script Analysis
+## Script Analysis
 [Full updated script here.](https://github.com/PandaSekh/scripts/blob/main/ai-commit.sh).
 Here’s the breakdown of the core parts of the script:
 
