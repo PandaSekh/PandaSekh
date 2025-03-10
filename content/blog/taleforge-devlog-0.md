@@ -1,5 +1,5 @@
 ---
-title: TaleForge Dev Log #0: The Spark
+title: "TaleForge Dev Log #0: The Spark"
 date: 2025-03-10
 categories: [AI, Startup]
 description: "DevLog series on the TaleForge project."
