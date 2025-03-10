@@ -1,6 +1,16 @@
+---
+title: TaleForge Dev Log #0: The Spark
+date: 2025-03-10
+categories: [AI, Startup]
+description: "DevLog series on the TaleForge project."
+series: [TaleForge DevLog]
+---
+
 # TaleForge Dev Log #0: The Spark
 
 I’ve started working on a book, which for me means scribbling notes in a notebook and recording quick audio memos whenever inspiration strikes. But what happens when you try to find that crucial plot idea you jotted down months ago? It’s like searching for a needle in a haystack. **That’s why I thought about TaleForge**—an AI-powered tool **for writers** who need to transform scattered, messy ideas into structured character sheets, locations, and story arcs.
+
+{{< toc >}}
 
 ## A Weekend Experiment Turned Project
 
@@ -42,3 +52,5 @@ I haven’t pinned down a final pricing structure for TaleForge. AI usage means 
 - **Pricing Strategy**: Once I see how the beta goes, I’ll figure out the best way to keep TaleForge affordable yet sustainable.
 
 That’s it for Dev Log #0! Thanks for following along. I’m excited (and a bit nervous) to see how TaleForge evolves. Stay tuned for future updates, where I’ll share lessons learned, new features, and hopefully some success stories from early adopters who are ready to level up their writing process.
+
+{{< comments >}}
