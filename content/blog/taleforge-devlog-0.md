@@ -6,8 +6,6 @@ description: "DevLog series on the TaleForge project."
 series: [TaleForge DevLog]
 ---
 
-# TaleForge Dev Log #0: The Spark
-
 I’ve started working on a book, which for me means scribbling notes in a notebook and recording quick audio memos whenever inspiration strikes. But what happens when you try to find that crucial plot idea you jotted down months ago? It’s like searching for a needle in a haystack. **That’s why I thought about TaleForge**—an AI-powered tool **for writers** who need to transform scattered, messy ideas into structured character sheets, locations, and story arcs.
 
 {{< toc >}}
