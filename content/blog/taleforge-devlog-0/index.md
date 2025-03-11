@@ -37,7 +37,7 @@ I’m a big fan of transparency, so here’s the running log of expenses vs. gai
 | ChatGPT             | $25.00 |
 | **Total**           | **$51.10** |
 
-**Gains:** $0 (for now!)
+**Gains:** -$51.10 (for now!)
 
 ## The Pricing Conundrum
 
