@@ -20,7 +20,7 @@ After a couple of days experimenting with code, ChatGPT, and Lovable.dev, I saw 
 
 Below is a sneak peek of how TaleForge is shaping up, focusing on **organizing story details**. You can see how it structures character information, from personality traits to goals and motivations—all in one convenient place:
 
-<img width="1319" alt="Screenshot 2025-03-10 alle 12 47 06" src="https://github.com/user-attachments/assets/dcca34d7-a0a7-484b-a960-199ed3891b16" />
+{{< image_unsized src="https://github.com/user-attachments/assets/dcca34d7-a0a7-484b-a960-199ed3891b16"" alt="First iteration of the UI.">}}
 
 > *An early look at TaleForge’s interface, designed to help writers manage their characters.*
 
