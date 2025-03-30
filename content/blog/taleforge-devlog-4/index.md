@@ -41,7 +41,7 @@ But today, while waiting for the coffee to brew, I think I’ve finally landed o
 
 Also, I did consider moving everything to AWS. It’s tempting: scalability, flexibility, not being locked by custom tech, proprietary tech like I am right now. But, as a solo “entrepreneur”, it would mean diving headfirst into more cost, more complexity, more risk. Not worth it, yet.
 
-## 💸 Expenses vs. Gains (So Far)
+## 💸 Expenses vs. Gains
 
 Here’s the updated running total of TaleForge expenses:
 
@@ -49,7 +49,7 @@ Here’s the updated running total of TaleForge expenses:
 |---------------------------|----------------|
 | Previous total              | $128          |
 | Nothing, thankfully         | $0         |
-| **Total**                 | **~$128**   |
+| **Total**                 | **-$128**   |
 
 **Gains:** $0 (but the beta is finally live, and that’s worth something.)
 
