@@ -8,6 +8,8 @@ series: [TaleForge DevLog]
 
 We're getting closer and closer to beta launch! The last week was intense: balancing detailed technical improvements, defining clear pricing, launching a proper landing page, and even introducing **Quill**, TaleForge's AI-powered writer’s assistant. Let’s dig into the specifics.
 
+{{< toc >}}
+
 ## 🛠️ Major Improvements
 
 ### 🖌️ New Logo & Branding
@@ -65,3 +67,5 @@ The beta launch is near! Here’s what's still on my immediate to-do list:
 - **Privacy Compliance**: Double-check privacy/cookie policies and user consent management.
 
 That’s Dev Log #3! It feels amazing seeing TaleForge progress from scattered ideas into something genuinely useful for writers. Thanks again for following along—stay tuned as the journey continues, and don't hesitate to join the beta at [taleforge.app](https://taleforge.app)!
+
+{{< comments >}}
